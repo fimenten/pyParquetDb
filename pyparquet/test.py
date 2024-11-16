@@ -27,6 +27,8 @@ def concatUpdate(data_path: str, new_data: pd.DataFrame):
 def getPath(table:str, key:str,value:str):
     if not os.path.exists(DB_PATH):
         pd.DataFrame(columns=[key,"path"]).to_sql(table,sqlite3.connect(DB_PATH),index=False)
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.execute(f"CREATE TABLE IF NOT EXISTS {table} ({key} TEXT PRIMARY KEY, path TEXT)")
 
     df = pd.read_sql(f"SELECT * FROM {table} WHERE {key}='{value}'", sqlite3.connect(DB_PATH)) 
     df = pl.from_pandas(df)
