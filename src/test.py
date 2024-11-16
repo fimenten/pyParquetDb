@@ -5,6 +5,7 @@ import os
 import pathlib
 import filelock
 import uuid
+import sqlite3
 load_dotenv()
 DB_PATH = os.getenv("DB_PATH")
 DATA_DIR = os.path.expanduser("~/data")
@@ -24,7 +25,10 @@ def concatUpdate(data_path: str, new_data: pd.DataFrame):
         return data
 
 def getPath(table:str, key:str,value:str):
-    df = pl.read_parquet(DB_PATH).filter(pl.col("table")==table).filter(pl.col(key)==value)
+    if not os.path.exists(DB_PATH):
+        sqlite3.connect(DB_PATH).execute(f"CREATE TABLE {str(table)} ({key}: TEXT, path: TEXT)")
+    df = pd.read_sql(f"SELECT * FROM {table} WHERE {key}='{value}'", sqlite3.connect(DB_PATH)) 
+    df = pl.from_pandas(df)
     if len(df) == 0:
         return None
     elif len(df) > 1:
@@ -37,7 +41,7 @@ def addOrGetPath(table:str, key:str, value:str):
         if path is None:
             path = str(uuid.uuid4()) + ".parquet"
             data = pl.DataFrame({"table":[table],key:[value],"path":[path]})
-            concatUpdate(DB_PATH,data)
+            data = data.to_pandas().to_sql(table,sqlite3.connect(DB_PATH),if_exists="append",index=False)
         
     return path
 
