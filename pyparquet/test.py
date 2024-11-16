@@ -15,7 +15,10 @@ def concatUpdate(data_path: str, new_data: pd.DataFrame):
     data_path = pathlib.Path(DATA_DIR) / data_path
     # Read the data
     with filelock.FileLock(f"{data_path}"):
-        data = pl.read_parquet(data_path)
+        if os.path.exists(data_path):
+            data = pl.read_parquet(data_path)
+        else:
+            data = pl.DataFrame()
         # Convert the new data to polars
         new_data = pl.DataFrame(new_data)
         # Concatenate the data
