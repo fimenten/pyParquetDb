@@ -26,7 +26,8 @@ def concatUpdate(data_path: str, new_data: pd.DataFrame):
 
 def getPath(table:str, key:str,value:str):
     if not os.path.exists(DB_PATH):
-        sqlite3.connect(DB_PATH).execute(f"CREATE TABLE {str(table)} ({key}: TEXT, path: TEXT)")
+        pd.DataFrame(columns=[key,"path"]).to_sql(table,sqlite3.connect(DB_PATH),index=False)
+
     df = pd.read_sql(f"SELECT * FROM {table} WHERE {key}='{value}'", sqlite3.connect(DB_PATH)) 
     df = pl.from_pandas(df)
     if len(df) == 0:
@@ -44,4 +45,10 @@ def addOrGetPath(table:str, key:str, value:str):
             data = data.to_pandas().to_sql(table,sqlite3.connect(DB_PATH),if_exists="append",index=False)
         
     return path
+
+def saveTo(table:str, key:str, value:str, data:pd.DataFrame):
+    path = addOrGetPath(table,key,value)
+    concatUpdate(path,data)
+    return path
+
 
