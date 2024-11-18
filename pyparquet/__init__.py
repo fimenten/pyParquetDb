@@ -1,1 +1,3 @@
-from .test import concatUpdate,getPath,addOrGetPath,saveTo
+from .module import parquetDb
+
+__all__ = ["parquetDb"]
