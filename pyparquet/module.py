@@ -37,6 +37,7 @@ class parquetDb:
         return self
 
     def getAbsPath(self,table:str, key:str,value:str):
+        table,key,value = str(table),str(key),str(value)
         self.checktable(table,key)
         df = pd.read_sql(f"SELECT * FROM {table} WHERE {key}='{value}'", sqlite3.connect(self.db_path)) 
         df = pl.from_pandas(df)
