@@ -13,9 +13,13 @@ DATA_DIR = os.path.expanduser("~/data")
 class parquetDb:
     def __init__(self,db_path:str=None,data_dir:str=None):
         if db_path is not None:
+            db_path = os.path.expanduser(db_path)
             self.db_path = db_path
         else:
-            self.db_path = DB_PATH
+            if DB_PATH is None:
+                self.db_path = os.path.expanduser("~/parquet.db")
+            else:
+                self.db_path = DB_PATH        
         if data_dir is not None:
             self.data_dir = data_dir
         else:
